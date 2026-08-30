@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "UnoApp": {
+      "type": "stdio",
+      "command": "dotnet",
+      "args": [
+        "dnx",
+        "-y",
+        "--prerelease",
+        "uno.devserver",
+        "--mcp-app"
+      ],
+      "env": {}
+    },
+    "UnoDocs": {
+      "type": "http",
+      "url": "https://mcp.platform.uno/v1"
+    }
+  }
+}

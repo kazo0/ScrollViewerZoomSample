@@ -1,0 +1,232 @@
+<UserControl x:Class="ScrollViewerZoomSample.XamlContentZoomView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:utu="using:Uno.Toolkit.UI">
+
+  <UserControl.Resources>
+    <!-- Plain XAML nodes. Nothing about them knows they're going to be zoomed. -->
+    <Style x:Key="NodeStyle"
+           TargetType="Border">
+      <Setter Property="Background" Value="{ThemeResource SystemControlBackgroundListLowBrush}" />
+      <Setter Property="BorderBrush" Value="{ThemeResource SystemControlForegroundBaseMediumBrush}" />
+      <Setter Property="BorderThickness" Value="2" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="16" />
+    </Style>
+  </UserControl.Resources>
+
+  <Grid ColumnSpacing="12"
+        Padding="12">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*" />
+      <ColumnDefinition Width="Auto" />
+    </Grid.ColumnDefinitions>
+
+    <!--
+      Same idea as the image tab, no bitmap in sight. The content is an ordinary
+      FrameworkElement tree with a fixed size, which is what gives the ScrollViewer an
+      extent to scroll and zoom around. It opens at 100% scrolled to the top-left corner —
+      a ScrollViewer's natural resting state; centering is something you do via ChangeView.
+    -->
+    <Border Grid.Column="0"
+            BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
+            BorderThickness="1"
+            CornerRadius="8">
+      <ScrollViewer x:Name="Scroller"
+                    ZoomMode="Enabled"
+                    MinZoomFactor="0.2"
+                    MaxZoomFactor="5"
+                    HorizontalScrollBarVisibility="Auto"
+                    VerticalScrollBarVisibility="Auto"
+                    HorizontalScrollMode="Enabled"
+                    VerticalScrollMode="Enabled"
+                    ViewChanged="OnViewChanged">
+
+        <Grid x:Name="Diagram"
+              Width="900"
+              Height="560"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              Background="{ThemeResource SystemControlBackgroundAltHighBrush}">
+
+          <TextBlock Text="A perfectly ordinary XAML tree"
+                     Style="{StaticResource SubtitleTextBlockStyle}"
+                     Margin="24,20,0,0"
+                     VerticalAlignment="Top" />
+
+          <!-- Connectors, drawn as shapes so they scale with everything else. -->
+          <Rectangle Width="2"
+                     Height="60"
+                     Fill="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Top"
+                     Margin="0,152,0,0" />
+          <Rectangle Width="480"
+                     Height="2"
+                     Fill="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Top"
+                     Margin="0,212,0,0" />
+          <Rectangle Width="2"
+                     Height="40"
+                     Fill="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Top"
+                     Margin="-480,212,0,0" />
+          <Rectangle Width="2"
+                     Height="40"
+                     Fill="{ThemeResource SystemControlForegroundBaseMediumBrush}"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Top"
+                     Margin="480,212,0,0" />
+
+          <!-- Root node -->
+          <Border x:Name="ShellNode"
+                  Style="{StaticResource NodeStyle}"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Top"
+                  Margin="0,72,0,0">
+            <StackPanel Spacing="4">
+              <TextBlock Text="Shell"
+                         Style="{StaticResource BodyStrongTextBlockStyle}"
+                         HorizontalAlignment="Center" />
+              <TextBlock Text="root container"
+                         Style="{StaticResource CaptionTextBlockStyle}"
+                         Opacity="0.7"
+                         HorizontalAlignment="Center" />
+            </StackPanel>
+          </Border>
+
+          <!-- Left node: still fully interactive, at any zoom level. -->
+          <Border x:Name="CounterNode"
+                  Style="{StaticResource NodeStyle}"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Top"
+                  Margin="-480,252,0,0">
+            <StackPanel Spacing="8"
+                        Width="200">
+              <TextBlock Text="Live controls"
+                         Style="{StaticResource BodyStrongTextBlockStyle}" />
+              <TextBlock Text="Zoom in and click it. Hit testing scales with the content."
+                         Style="{StaticResource CaptionTextBlockStyle}"
+                         Opacity="0.7"
+                         TextWrapping="Wrap" />
+              <Button x:Name="CounterButton"
+                      Content="Clicked 0 times"
+                      HorizontalAlignment="Stretch"
+                      Click="OnCounterClick" />
+              <TextBox PlaceholderText="type in me"
+                       Header="TextBox" />
+              <CheckBox Content="CheckBox" />
+            </StackPanel>
+          </Border>
+
+          <!-- Right node -->
+          <Border x:Name="ShapesNode"
+                  Style="{StaticResource NodeStyle}"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Top"
+                  Margin="480,252,0,0">
+            <StackPanel Spacing="8"
+                        Width="200">
+              <TextBlock Text="Vector content"
+                         Style="{StaticResource BodyStrongTextBlockStyle}" />
+              <TextBlock Text="Shapes and text stay crisp all the way in, unlike a bitmap."
+                         Style="{StaticResource CaptionTextBlockStyle}"
+                         Opacity="0.7"
+                         TextWrapping="Wrap" />
+              <StackPanel Orientation="Horizontal"
+                          Spacing="8">
+                <Ellipse Width="40"
+                         Height="40"
+                         Fill="#FF5C6BC0" />
+                <Rectangle Width="40"
+                           Height="40"
+                           RadiusX="6"
+                           RadiusY="6"
+                           Fill="#FF26A69A" />
+                <Ellipse Width="40"
+                         Height="40"
+                         Fill="#FFEF5350" />
+              </StackPanel>
+              <TextBlock Text="6pt text, legible when you zoom"
+                         FontSize="6" />
+            </StackPanel>
+          </Border>
+
+          <TextBlock Text="900 x 560 of content, whatever size the viewport happens to be"
+                     Style="{StaticResource CaptionTextBlockStyle}"
+                     Opacity="0.6"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Bottom"
+                     Margin="0,0,0,20" />
+        </Grid>
+
+      </ScrollViewer>
+    </Border>
+
+    <ScrollViewer Grid.Column="1"
+                  Width="260"
+                  HorizontalScrollMode="Disabled">
+      <StackPanel Spacing="12">
+
+        <TextBlock Text="XAML content"
+                   Style="{StaticResource SubtitleTextBlockStyle}" />
+        <TextBlock TextWrapping="Wrap"
+                   Opacity="0.8"
+                   Style="{StaticResource CaptionTextBlockStyle}"
+                   Text="The content is a fixed-size Grid of Borders, shapes and live controls. Same ScrollViewer, same gestures." />
+
+        <TextBlock x:Name="ZoomText"
+                   Style="{StaticResource TitleTextBlockStyle}" />
+
+        <Slider x:Name="ZoomSlider"
+                Header="Zoom factor"
+                Minimum="0.2"
+                Maximum="5"
+                StepFrequency="0.01"
+                Value="1"
+                ValueChanged="OnZoomSliderChanged" />
+
+        <Button Content="Fit to viewport"
+                HorizontalAlignment="Stretch"
+                Click="OnFitClick" />
+        <Button Content="Reset view"
+                HorizontalAlignment="Stretch"
+                Click="OnResetClick" />
+
+        <utu:Divider />
+
+        <!--
+          There is no ElementOnFocus on a ScrollViewer. "Zoom to this node" is a
+          TransformToVisual + ChangeView calculation — see SvzScript.FitTo.
+        -->
+        <ComboBox x:Name="FocusSelector"
+                  Header="Element on focus"
+                  HorizontalAlignment="Stretch"
+                  SelectedIndex="0"
+                  SelectionChanged="OnFocusSelectionChanged">
+          <ComboBoxItem Content="(whole diagram)" />
+          <ComboBoxItem Content="Shell" />
+          <ComboBoxItem Content="Live controls" />
+          <ComboBoxItem Content="Vector content" />
+        </ComboBox>
+
+        <utu:Divider />
+
+        <ToggleSwitch Header="Zoom allowed"
+                      OnContent=""
+                      OffContent=""
+                      IsOn="True"
+                      Toggled="OnZoomAllowedToggled" />
+        <ToggleSwitch Header="Pan allowed"
+                      OnContent=""
+                      OffContent=""
+                      IsOn="True"
+                      Toggled="OnPanAllowedToggled" />
+
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+
+</UserControl>

@@ -1,0 +1,125 @@
+<UserControl x:Class="ScrollViewerZoomSample.ImageZoomView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:utu="using:Uno.Toolkit.UI">
+
+  <Grid ColumnSpacing="12"
+        Padding="12">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*" />
+      <ColumnDefinition Width="Auto" />
+    </Grid.ColumnDefinitions>
+
+    <!--
+      The whole demo. Everything else on this page is just chrome that pokes at it.
+
+      ZoomMode="Enabled"  -> Ctrl + wheel and touch pinch zoom the content optically.
+      Stretch="None"      -> let the Image report its natural pixel size as the extent.
+                             If you let the Image stretch, it sizes itself to the viewport
+                             and there is nothing left to zoom into.
+      Alignment=Center    -> ScrollViewer has no AutoCenterContent; when the zoomed extent is
+                             smaller than the viewport, the presenter falls back to the
+                             content's own alignment, so centering has to be asked for here.
+
+      There is no AutoFitToCanvas equivalent either — the initial fit is done in code-behind
+      (see OnImageOpened / OnViewportSizeChanged) via ChangeView.
+    -->
+    <Border Grid.Column="0"
+            BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
+            BorderThickness="1"
+            CornerRadius="8">
+      <ScrollViewer x:Name="Scroller"
+                    ZoomMode="Enabled"
+                    MinZoomFactor="0.1"
+                    MaxZoomFactor="8"
+                    HorizontalScrollBarVisibility="Auto"
+                    VerticalScrollBarVisibility="Auto"
+                    HorizontalScrollMode="Enabled"
+                    VerticalScrollMode="Enabled"
+                    SizeChanged="OnViewportSizeChanged"
+                    ViewChanged="OnViewChanged">
+        <!-- SizeChanged, not ImageOpened: ImageOpened fires when the bitmap is decoded,
+             before layout has given the Image its natural size, and Fit needs ActualWidth. -->
+        <Image Source="ms-appx:///Assets/profile.png"
+               Stretch="None"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center"
+               SizeChanged="OnContentSizeChanged" />
+      </ScrollViewer>
+    </Border>
+
+    <ScrollViewer Grid.Column="1"
+                  Width="260"
+                  HorizontalScrollMode="Disabled">
+      <StackPanel Spacing="12">
+
+        <TextBlock Text="Image"
+                   Style="{StaticResource SubtitleTextBlockStyle}" />
+        <TextBlock TextWrapping="Wrap"
+                   Opacity="0.8"
+                   Style="{StaticResource CaptionTextBlockStyle}"
+                   Text="Ctrl + wheel zooms at the cursor, wheel scrolls, Shift + wheel scrolls sideways. Touch pinch zooms too — that one is built in." />
+
+        <TextBlock x:Name="ZoomText"
+                   Style="{StaticResource TitleTextBlockStyle}" />
+
+        <!--
+          ZoomFactor is read-only, so no two-way binding here: the slider pushes values in
+          through ChangeView, and ViewChanged pushes them back out (see the code-behind).
+        -->
+        <Slider x:Name="ZoomSlider"
+                Header="Zoom factor"
+                Minimum="0.1"
+                Maximum="8"
+                StepFrequency="0.01"
+                Value="1"
+                ValueChanged="OnZoomSliderChanged" />
+
+        <StackPanel Orientation="Horizontal"
+                    Spacing="8">
+          <Button Content="-"
+                  Width="44"
+                  Click="OnZoomOutClick" />
+          <Button Content="+"
+                  Width="44"
+                  Click="OnZoomInClick" />
+        </StackPanel>
+
+        <Button Content="Fit to viewport"
+                HorizontalAlignment="Stretch"
+                Click="OnFitClick" />
+        <Button Content="Center content"
+                HorizontalAlignment="Stretch"
+                Click="OnCenterClick" />
+        <Button Content="Reset view"
+                HorizontalAlignment="Stretch"
+                Click="OnResetClick" />
+
+        <utu:Divider />
+
+        <ToggleSwitch Header="Zoom allowed"
+                      OnContent=""
+                      OffContent=""
+                      IsOn="True"
+                      Toggled="OnZoomAllowedToggled" />
+        <ToggleSwitch Header="Pan allowed"
+                      OnContent=""
+                      OffContent=""
+                      IsOn="True"
+                      Toggled="OnPanAllowedToggled" />
+        <ToggleSwitch x:Name="AutoFitToggle"
+                      Header="Auto fit to viewport"
+                      OnContent=""
+                      OffContent=""
+                      IsOn="True" />
+
+        <TextBlock TextWrapping="Wrap"
+                   Opacity="0.8"
+                   Style="{StaticResource CaptionTextBlockStyle}"
+                   Text="No equivalents here for ZoomContentControl's AutoCenterContent, AllowFreePanning, or the wheel-ratio knobs — 'Auto fit' above is hand-rolled from SizeChanged + ChangeView." />
+
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+
+</UserControl>

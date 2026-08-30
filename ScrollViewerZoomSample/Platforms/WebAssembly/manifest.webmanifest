@@ -1,0 +1,10 @@
+{
+  "background_color": "#ffffff",
+  "description": "ScrollViewerZoomSample",
+  "display": "standalone",
+  "name": "ScrollViewerZoomSample",
+  "short_name": "ScrollViewerZoomSample",
+  "start_url": "/index.html",
+  "theme_color": "#ffffff",
+  "scope": "/"
+}

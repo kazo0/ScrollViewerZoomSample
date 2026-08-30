@@ -1,0 +1,34 @@
+<Page x:Class="ScrollViewerZoomSample.MainPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:ScrollViewerZoomSample"
+      xmlns:utu="using:Uno.Toolkit.UI"
+      Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+  <!--
+    A SelectorBar over a single Grid cell, rather than a Pivot or a TabView.
+    Both of those host the selected item in a presenter that arranges it at its desired size;
+    a plain Grid row hands the view exactly the space it has, so the ScrollViewer's viewport
+    is the viewport and nothing spills.
+  -->
+  <Grid utu:SafeArea.Insets="VisibleBounds"
+        RowDefinitions="Auto,*">
+
+    <SelectorBar SelectionChanged="OnTabChanged"
+                 Margin="12,8,12,0">
+      <SelectorBarItem x:Name="ImageTab"
+                       Text="Image"
+                       IsSelected="True" />
+      <SelectorBarItem x:Name="XamlTab"
+                       Text="XAML content" />
+    </SelectorBar>
+
+    <Grid Grid.Row="1">
+      <local:ImageZoomView x:Name="ImageView" />
+      <local:XamlContentZoomView x:Name="XamlView"
+                                 Visibility="Collapsed" />
+    </Grid>
+
+  </Grid>
+
+</Page>
